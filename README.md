@@ -35,7 +35,7 @@ python main.py
 - [x] Adoption Application Processing: Handling and processing adoption applications;
 - [x] Donation Processing: Facilitating donations to shelters and rescue organizations.
 - [ ] Search and Filter Options (under review for correction): Enabling users to search and filter pets based on various criteria;
-    - Filtering can show results that do not comply with selected criteria
+    - Filtering is showing all the animals registered in the system, instead of only the ones that comply with selected criteria
      
 ## Classes
 ### Event 
