@@ -1,5 +1,5 @@
 # Pet-Adoption-Refactored
-Refactoring and implementation of Design Patterns in the Pet Adoption App.
+Refactoring and implementation of Design Patterns in the [Pet Adoption App](https://github.com/wyvianvalenca/pet-adoption-OO).
 
 ## How to install?
 
