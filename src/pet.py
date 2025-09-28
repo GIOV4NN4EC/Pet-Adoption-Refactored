@@ -3,10 +3,10 @@ from dateutil import relativedelta
 from datetime import date
 from typing_extensions import override
 
-# from src.application import Application
 from src.form import Form
 from src.model import Model
 from src.pet_profile import PetProfile
+from src.pet_profile_builder import PetProfileBuilder 
 from src.question import Question
 from src.address import Address
 from src.adopter import Adopter
@@ -20,14 +20,25 @@ class Pet(Model):
     def __init__(self, name: str, shelter: str, pet_type: str,
                  birth: date | None = None,
                  address: Address | None = None,
-                 desc: str | None = None,
+                 description: str | None = None,
                  breed: str | None = None,
                  color: str | None = None):
 
         self.__shelter: str = shelter
         self.__pet_type: str = pet_type
-        self.profile: PetProfile = PetProfile(name, birth, address,
-                                              desc, breed, color)
+
+        # BUILDER FOR PET PROFILE
+        self.profile: PetProfile = (
+            PetProfileBuilder()
+                .set_name(name)
+                .set_birth(birth)
+                .set_address(address)
+                .set_description(description)
+                .set_breed(breed)
+                .set_color(color)
+                .build()
+        )
+
         self.__status: str = "rescued"
         self.__form: Form = Form("standard",
                                  [Question(
