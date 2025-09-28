@@ -5,6 +5,7 @@ import initial_info
 
 from src.adopter import Adopter
 from src.shelter import Shelter
+from src.user_factory import UserFactory
 
 from src.ui.clean import clear_screen
 from src.ui.header import header
@@ -14,7 +15,6 @@ from src.ui.menus.shelter_menu import ShelterMenu
 
 # globals
 console = Console()
-
 
 def welcome() -> Adopter | Shelter | None:
     while True:
@@ -46,25 +46,24 @@ def welcome() -> Adopter | Shelter | None:
             return user
 
 
+# FACTORY MODE FOR USER
 def sign_up(user_type: str) -> Adopter | Shelter:
     while True:
         console.print()
         username: str = questionary.text("Choose an username: ").ask()
 
-        if user_type == "Adopter":
-            if Adopter.username_available(username):
-                first_name: str = questionary.text(
-                    "What's your first name?").ask()
-                last_name: str = questionary.text(
-                    "What's your last name?").ask()
-                name: str = first_name.title() + " " + last_name.title()
-                return Adopter(username, name)
+        if user_type == "Adopter" and Adopter.username_available(username):
+            first_name: str = questionary.text(
+                "What's your first name?").ask()
+            last_name: str = questionary.text(
+                "What's your last name?").ask()
+            name: str = first_name.title() + " " + last_name.title()
+            return UserFactory.create_user("Adopter", username, name)
 
-        elif user_type == "Shelter":
-            if Shelter.username_available(username):
-                name: str = questionary.text(
-                    "What's the shelter's name?").ask()
-                return Shelter(username, name)
+        elif user_type == "Shelter" and Shelter.username_available(username):
+            name: str = questionary.text(
+                "What's the shelter's name?").ask()
+            return UserFactory.create_user("Shelter", username, name)
 
         console.print("Username taken.\n", style="red")
 
