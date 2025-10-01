@@ -1,11 +1,10 @@
 import questionary
+from src.classes import UserFactory
 from rich.console import Console
 
 import initial_info
 
-from src.adopter import Adopter
-from src.shelter import Shelter
-from src.user_factory import UserFactory
+from src.classes import Adopter, Shelter, User
 
 from src.ui.clean import clear_screen
 from src.ui.header import header
@@ -45,9 +44,8 @@ def welcome() -> Adopter | Shelter | None:
         if user:
             return user
 
-
 # FACTORY MODE FOR USER
-def sign_up(user_type: str) -> Adopter | Shelter:
+def sign_up(user_type: str) -> User:
     while True:
         console.print()
         username: str = questionary.text("Choose an username: ").ask()
@@ -66,6 +64,7 @@ def sign_up(user_type: str) -> Adopter | Shelter:
             return UserFactory.create_user("Shelter", username, name)
 
         console.print("Username taken.\n", style="red")
+
 
 
 def login(user_type: str) -> Adopter | Shelter | None:
