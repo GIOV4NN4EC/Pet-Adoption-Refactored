@@ -4,8 +4,8 @@ from rich.markdown import Markdown
 from rich.console import Console, Group
 from rich.panel import Panel
 
-from src.post import Post
-from src.user import User
+from src.classes import Post
+from src.classes import User
 
 from src.ui.clean import clear_screen
 from src.ui.header import header
