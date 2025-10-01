@@ -25,17 +25,16 @@ python main.py
 ```
 
 ## Requirements
-- [x] User Account Management: Users can create and manage their accounts;
-- [x] Pet Profile Management: Managing profiles for pets available for adoption;
-- [x] Shelter and Rescue Organization Profiles: Profiles for shelters and rescue organizations;
-- [x] Event Listing and Management: Listing events like adoption drives and fundraisers;
-- [x] Educational Resources: Providing resources on pet care and adoption;
-- [x] Success Stories and Testimonials: Sharing success stories and testimonials from adopters;
-- [x] Community Forum: A forum for adopters and pet lovers to share experiences and advice.
-- [x] Adoption Application Processing: Handling and processing adoption applications;
-- [x] Donation Processing: Facilitating donations to shelters and rescue organizations.
-- [ ] Search and Filter Options (under review for correction): Enabling users to search and filter pets based on various criteria;
-    - Filtering can show results that do not comply with selected criteria.
+- [OK] User Account Management: Users can create and manage their accounts;
+- [OK] Pet Profile Management: Managing profiles for pets available for adoption;
+- [OK] Shelter and Rescue Organization Profiles: Profiles for shelters and rescue organizations;
+- [OK] Event Listing and Management: Listing events like adoption drives and fundraisers;
+- [OK] Educational Resources: Providing resources on pet care and adoption;
+- [OK] Success Stories and Testimonials: Sharing success stories and testimonials from adopters;
+- [OK] Community Forum: A forum for adopters and pet lovers to share experiences and advice.
+- [OK] Adoption Application Processing: Handling and processing adoption applications;
+- [OK] Donation Processing: Facilitating donations to shelters and rescue organizations.
+- [OK] Search and Filter Options: Enabling users to search and filter pets based on various criteria;
      
 ## Classes
 ### Event 
@@ -236,4 +235,4 @@ A class for searching and filtering objects (pets, events, shelters, posts)
 
 - can:
     - search: find one specific object
-    - [WIP] filter: filter all objects based on various criteria 
+    - filter: filter all objects based on various criteria 
