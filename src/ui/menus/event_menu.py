@@ -1,8 +1,7 @@
 import questionary
 from rich.console import Console
 
-from src.event import Event
-from src.user import User
+from src.classes import Event, User
 
 from src.ui.address_creator import create_address
 from src.ui.date_creator import create_date
