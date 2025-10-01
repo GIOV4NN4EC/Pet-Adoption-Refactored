@@ -35,7 +35,7 @@ python main.py
 - [x] Adoption Application Processing: Handling and processing adoption applications;
 - [x] Donation Processing: Facilitating donations to shelters and rescue organizations.
 - [ ] Search and Filter Options (under review for correction): Enabling users to search and filter pets based on various criteria;
-    - Filtering is showing all the animals registered in the system, instead of only the ones that comply with selected criteria
+    - Filtering can show results that do not comply with selected criteria.
      
 ## Classes
 ### Event 
@@ -141,7 +141,7 @@ General informations for users and pets
 
 ---
 
-### User [Under review]
+### User
 
 - has:
     - username (str)
@@ -177,8 +177,8 @@ Organizations that rescue pets and facilitate adoptions.
 - can:
     - add_allowed_pet_type: add a new species to shelter's list
     - is_allowed(pet_type): indicates if Shelter accepts pet_type
-    - [WIP] approve_application: approve an application to adopt a pet, deny and provide feedback for all others and make applicant the pet's tutor
-    - [WIP] deny_application: deny an application and provide feedback
+    - approve_application: approve an application to adopt a pet, deny and provide feedback for all others and make applicant the pet's tutor
+    - deny_application: deny an application
 
 ---
 
@@ -200,6 +200,7 @@ Rescued animals
     - treat: change status to 'in_treatment'
     - make_available: change status to 'available_for_adoption'
     - add_template_question: add a question to application_template
+    - [NEW] assign_form: assign a default form template for the pet
     - apply_to_adopt: fill the pet's form to apply for adoption
 
 ---
@@ -224,7 +225,7 @@ A social post
 
 ---
 
-### Query [Under review]
+### Query
 A class for searching and filtering objects (pets, events, shelters, posts)
 
 - has:
@@ -235,4 +236,4 @@ A class for searching and filtering objects (pets, events, shelters, posts)
 
 - can:
     - search: find one specific object
-    - filter: filter all objects based on various criteria
+    - [WIP] filter: filter all objects based on various criteria 
