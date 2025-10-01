@@ -10,7 +10,6 @@ from copy import deepcopy
 
 from src.prototype import Prototype
 
-
 class Model(ABC):
     def __init_subclass__(cls):
         cls.data: dict[str, Self] = {}
