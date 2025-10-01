@@ -1,12 +1,5 @@
 from datetime import date
-from src.address import Address
-from src.adopter import Adopter
-from src.application import Application
-from src.donation import Donation
-from src.event import Event
-from src.pet import Pet
-from src.post import Post
-from src.shelter import Shelter
+from src.classes import Address, Adopter, Application, Donation, Event, Pet, Post, Shelter
 
 
 def create_data():
