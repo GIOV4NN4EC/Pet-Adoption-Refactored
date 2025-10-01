@@ -4,14 +4,9 @@ import questionary
 from rich.console import Console
 from rich.panel import Panel
 
-from src.adopter import Adopter
-
-from src.application import Application
-from src.donation import Donation
-from src.form import Form
+from src.classes import Adopter, Application, Donation, Shelter, Pet, Form
 from src.query.query import Query
-from src.shelter import Shelter
-from src.pet import Pet
+
 
 from src.ui.lister import Lister
 from src.ui.name_validator import NameValidator
