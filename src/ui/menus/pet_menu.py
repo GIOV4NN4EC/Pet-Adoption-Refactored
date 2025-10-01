@@ -4,9 +4,12 @@ from rich.console import Console
 from rich.panel import Panel
 
 # models
-from src.application import Application
-from src.user import User
-from src.pet import Pet
+from src.classes import Application
+from src.classes import User
+from src.classes import Pet
+from src.classes import Pet, PetProfileBuilder, Question
+from src.form_template import default_adoption_form  # se você tiver um form padrão
+
 
 # UI helpers
 from src.ui.profile_updater import ProfileUpdater
@@ -15,7 +18,6 @@ from src.ui.lister import Lister
 from src.ui.clean import clear_screen
 from src.ui.header import header
 
-# menus
 from src.ui.menus.menu import Menu
 
 
@@ -25,6 +27,8 @@ class PetMenu(Menu):
         self.name = "pet menu"
 
         self.updater: ProfileUpdater = ProfileUpdater(user, console)
+
+        self.form = None
 
         self.actions = {
             "Return to Main Menu": {
@@ -81,20 +85,29 @@ class PetMenu(Menu):
 
     def create_pet(self):
         name: str = questionary.text("Type the pet's name:",
-                                     validate=NameValidator,
-                                     qmark=">>").ask()
+                                    validate=NameValidator,
+                                    qmark=">>").ask()
 
         pet_type: str = questionary.text("Type the pet's type (species):",
-                                         validate=NameValidator,
-                                         qmark=">>").ask()
+                                        validate=NameValidator,
+                                        qmark=">>").ask()
 
         if not self.user.is_allowed(pet_type):
             self.console.print(
-                f"{self.user.name} does not shelters {pet_type}")
+                f"{self.user.name} does not shelter {pet_type}")
             return
 
-        new_pet: Pet = Pet(name, self.user.username, pet_type,
-                           address=self.user.profile.address)
+        # BUILDER FOR PET PROFILE
+        profile = (PetProfileBuilder(name)
+                .with_address(self.user.profile.address)
+                .build())
+
+        new_pet: Pet = Pet(name, self.user.username, pet_type)
+
+        assign_form = questionary.confirm(
+            f"Do you want to assign the default adoption form to {name}?").ask()
+        if assign_form:
+            new_pet.form = default_adoption_form.clone()
 
         update: bool = questionary.confirm(
             f"Do you want to update {name}'s profile?").ask()
@@ -103,38 +116,44 @@ class PetMenu(Menu):
             self.updater.update_updater(new_pet)
             self.updater.update_profile()
 
+
     def add_question(self):
         pet: Pet | None = self.get_pet_name()
-
         if pet is None:
             return
 
         self.console.print()
 
         name: str = questionary.text("Type your question:",
-                                     validate=NameValidator,
-                                     qmark=">>").ask()
+                                    validate=NameValidator,
+                                    qmark=">>").ask()
 
         self.console.print()
 
         options: list[str] = []
         while True:
             option: str = questionary.text("Type a possible answer (or <q> to stop):",
-                                           validate=NameValidator,
-                                           qmark="·").ask()
+                                        validate=NameValidator,
+                                        qmark="·").ask()
 
             if option == "q" or option is None:
                 break
-
             options.append(option)
 
         self.console.print()
 
         correct: str = questionary.text("Type the right answer:",
                                         validate=lambda text: True if text in options else "Right answer must be one of the provided options",
-                                        qmark="✓", instruction="Choose one of the provided options as the correct answer for this question").ask()
+                                        qmark="✓",
+                                        instruction="Choose one of the provided options as the correct answer for this question").ask()
 
-        pet.add_template_question(name, options, correct)
+        # PROTOTYPE FOR QUESTIONS
+        q_template = Question(name, options, correct)
+        new_q = q_template.clone()  # COPY THE QUESTION
+
+        # ADD QUESTION TO THE FORM
+        pet.form.add_question(new_q.name, new_q.options, new_q.preferred_answer)
+
 
     def deny_app(self, app: Application) -> int:
         self.console.print(f"\nDenying [bold]{app.applicant}'s[/] application to adopt [bold]{app.pet}[/]...",
