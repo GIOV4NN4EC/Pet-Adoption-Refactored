@@ -2,7 +2,7 @@ import questionary
 
 from rich.console import Console
 
-from src.user import User
+from src.classes import User
 
 from src.ui.profile_updater import ProfileUpdater
 from src.ui.header import header
