@@ -1,13 +1,9 @@
 from rich.console import Console
 
-from src.event import Event
-from src.user import User
-from src.shelter import Shelter
-from src.donation import Donation
+from src.classes import Event, User, Shelter, Donation, Pet
 
 from src.ui.menus.menu import Menu
 from src.ui.lister import Lister
-from src.pet import Pet
 
 
 class ListingMenu(Menu):
