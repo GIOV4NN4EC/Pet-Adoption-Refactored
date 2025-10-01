@@ -1,6 +1,6 @@
 import questionary
 
-from src.address import Address
+from src.classes import Address
 
 from src.ui.name_validator import NameValidator
 
