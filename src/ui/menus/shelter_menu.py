@@ -1,7 +1,7 @@
 import questionary
 from rich.console import Console
 
-from src.shelter import Shelter
+from src.classes import Shelter
 
 from src.ui.name_validator import NameValidator
 
