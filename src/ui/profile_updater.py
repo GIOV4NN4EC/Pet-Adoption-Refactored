@@ -6,11 +6,8 @@ from rich.align import Align
 from rich.console import Console
 from rich.panel import Panel
 
-from src.address import Address
-from src.pet_profile import PetProfile
-from src.user import User
-from src.user_profile import Profile
-from src.pet import Pet
+from src.classes import Address, PetProfile, User, Profile, Pet
+
 
 from src.ui.name_validator import NameValidator
 
