@@ -1,7 +1,6 @@
 from rich.console import Console
 
-from src.post import Post
-from src.user import User
+from src.classes import Post, User
 
 from src.ui.menus.menu import Menu
 from src.ui.posts_ui import PostUI
