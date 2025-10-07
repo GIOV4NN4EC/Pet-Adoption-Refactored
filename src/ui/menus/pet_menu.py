@@ -8,7 +8,7 @@ from src.classes import Application
 from src.classes import User
 from src.classes import Pet
 from src.classes import Pet, PetProfileBuilder, Question
-from src.form_template import default_adoption_form  # se você tiver um form padrão
+from src.form_template import default_adoption_form 
 
 
 # UI helpers
@@ -18,7 +18,10 @@ from src.ui.lister import Lister
 from src.ui.clean import clear_screen
 from src.ui.header import header
 
+# menus
 from src.ui.menus.menu import Menu
+
+from src.mediator import ConcreteAdoptionMediator
 
 
 class PetMenu(Menu):
@@ -27,6 +30,7 @@ class PetMenu(Menu):
         self.name = "pet menu"
 
         self.updater: ProfileUpdater = ProfileUpdater(user, console)
+        self.mediator = ConcreteAdoptionMediator()
 
         self.form = None
 
@@ -104,6 +108,9 @@ class PetMenu(Menu):
 
         new_pet: Pet = Pet(name, self.user.username, pet_type)
 
+        new_pet.profile = profile
+
+        # ASSIGN DEFAULT FORM
         assign_form = questionary.confirm(
             f"Do you want to assign the default adoption form to {name}?").ask()
         if assign_form:
@@ -154,18 +161,20 @@ class PetMenu(Menu):
         # ADD QUESTION TO THE FORM
         pet.form.add_question(new_q.name, new_q.options, new_q.preferred_answer)
 
-
+    # MEDIATOR FOR APPROVING/DENYING APPLICATIONS
     def deny_app(self, app: Application) -> int:
         self.console.print(f"\nDenying [bold]{app.applicant}'s[/] application to adopt [bold]{app.pet}[/]...",
                            f"\nPlease provide some feedback to {app.applicant}\n")
         feedback: str = questionary.text("Why was this application denied?",
                                          validate=NameValidator).ask()
 
-        app.deny(feedback)
+        self.mediator.deny_application(app, feedback)
         return 0
 
     def approve_app(self, apps: list[Application], approved_app: Application) -> int:
-        approved_app.approve()
+        
+        self.mediator.approve_application(approved_app)
+
         self.console.print(
             f"{approved_app.applicant}'s application to adopt {approved_app.pet} APPROVED! :party_popper:\n")
 
@@ -179,7 +188,7 @@ class PetMenu(Menu):
 
         for app in apps:
             if app != approved_app:
-                self.deny_app(app)
+                self.deny_application(app)
 
         return 0
 
