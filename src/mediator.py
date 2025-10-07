@@ -25,10 +25,8 @@ class ConcreteAdoptionMediator(AdoptionMediator):
         if not pet_obj or not adopter:
             raise ValueError("Pet or adopter not found!")
         
-        # creating the application
         app = Application(applicant, pet, pet_obj.form, answers)
 
-        # updating pet
         pet_obj.add_application()
         
         return app
@@ -40,12 +38,12 @@ class ConcreteAdoptionMediator(AdoptionMediator):
         if not pet_obj or not adopter:
             raise ValueError("Pet or adopter not found")
         
-        application._set_status("approved")
+        application.approve()
         pet_obj.tutor = adopter
         pet_obj.was_adopted()
 
 
 
     def deny_application(self, application: Application, feedback: str = "") -> None:
-        application._set_status("denied")
         application.feedback = feedback
+        application.deny(feedback)
