@@ -10,6 +10,7 @@ from copy import deepcopy
 
 from src.prototype import Prototype
 
+
 class Model(ABC):
     def __init_subclass__(cls):
         cls.data: dict[str, Self] = {}
@@ -257,29 +258,19 @@ class Answer:
 
 
 class Application(Model):
-    @classmethod
-    def get_apps_pet(cls, pet: str) -> list['Application']:
-        return [app for app in cls.data.values() if app.__pet == pet]
-
-    @classmethod
-    def get_apps_applicant(cls, applicant: str) -> list['Application']:
-        return [app for app in cls.data.values() if app.__applicant == applicant]
-
-    def __init__(self, applicant: str, pet: str,
-                 pet_form: Form, answers: list[str]):
+    def __init__(self, applicant: str, pet: str, pet_form: Form, answers: list[str]):
         if len(answers) != len(pet_form):
-            raise Exception(
-                f"{len(answers)} answers for {len(pet_form)} questions")
+            raise Exception(f"{len(answers)} answers for {len(pet_form)} questions")
 
+        
         if applicant in [apps.__applicant for apps in Application.get_apps_pet(pet)]:
             raise Exception(f"{applicant} already applied to adopt {pet}")
 
         self.__applicant: str = applicant
         self.__pet: str = pet
-
         self.__answers: list[Answer] = []
         self.__status: str = "in review"
-        self.feedback: str
+        self.feedback: str = ""
 
         right_answers: int = 0
         for index, question in enumerate(pet_form):
@@ -290,8 +281,8 @@ class Application(Model):
         self.__score: float = right_answers / len(pet_form)
 
         self.data[f"{pet}-{applicant}"] = self
-        Pet.data[pet].add_application()
 
+    # Getters
     @property
     def applicant(self) -> str:
         return self.__applicant
@@ -304,38 +295,43 @@ class Application(Model):
     def score(self) -> float:
         return self.__score
 
-    def approve(self) -> None:
-        self.__status = "approved"
-        Pet.data[self.__pet].tutor = Adopter.data[self.__applicant]
-        Pet.data[self.__pet].was_adopted()
-        return None
+    @property
+    def status(self) -> str:
+        return self.__status
 
-    def deny(self, feedback: str) -> None:
-        self.__status = "denied"
-        self.feedback = feedback
-        return None
+    # MEDIATOR METHODS
+    def _set_status(self, new_status: str, feedback: str = "") -> None:
+        self.__status = new_status
+        if feedback:
+            self.feedback = feedback
 
     def __str__(self) -> str:
-        return f"[bold on purple4]@{self.__applicant}'s application to adopt {self.__pet.title()}[/]"
-
-    # OVERRIDE FOR POLYMORPHISM
+        return f"@{self.__applicant}'s application to adopt {self.__pet}"
 
     def formatted_list(self) -> list[str]:
         application_info: list[str] = [f"{self}", ""]
-
         for answer in self.__answers:
             application_info.append(f"{answer}")
             application_info.append("")
 
-        application_info.append(
-            f"Score: [repr.number]{self.__score * 100:.2f}%[/]")
+        application_info.append(f"Score: {self.__score * 100:.2f}%")
+        application_info.append(f"Status: {self.__status.upper()}")
 
-        application_info.append(
-            f"Status: {self.__status.upper()}"
-        )
+        if self.__status == "denied" and self.feedback:
+            application_info.append(f"Feedback: {self.feedback}")
 
         return application_info
-    
+
+    # GETTERS FOR MEDIATOR
+    @classmethod
+    def get_apps_pet(cls, pet: str) -> list['Application']:
+        return [app for app in cls.data.values() if app.__pet == pet]
+
+    @classmethod
+    def get_apps_applicant(cls, applicant: str) -> list['Application']:
+        return [app for app in cls.data.values() if app.__applicant == applicant]
+
+
 
 
 class Donation(Model):
@@ -628,7 +624,7 @@ class Pet(Model):
         return f"{self.profile.name}: {self.__pet_type.title()}, {self.__status.upper()}, {self.__applications} applications"
 
 
-
+# PET PROFILE BUILDER
 class PetProfileBuilder:
     def __init__(self, name: str):
         self._name = name
