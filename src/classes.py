@@ -10,6 +10,19 @@ from copy import deepcopy
 
 from src.prototype import Prototype
 
+# STATES FOR APLICATION
+class ApplicationState(ABC):
+    @abstractmethod
+    def approve(self, application: "Application"):
+        pass
+
+    @abstractmethod
+    def deny(self, application: "Application", feedback: str = ""):
+        pass
+
+    @abstractmethod
+    def name(self) -> str:
+        pass
 
 class Model(ABC):
     def __init_subclass__(cls):
@@ -257,6 +270,37 @@ class Answer:
     
 
 
+class ApprovedState(ApplicationState):
+    def approve(self, application: "Application"):
+        raise Exception("Application already approved")
+    
+    def deny(self, application: "Application", feedback: str = ""):
+        raise Exception("This application has already been approved. It cannot be denied.")
+    
+    def name(self) -> str:
+        return "approved"
+
+class DeniedState(ApplicationState):
+    def approve(self, application: "Application"):
+        raise Exception("This application has already been denied. It cannot be approved.")
+    
+    def deny(self, application: "Application", feedback: str = ""):
+        raise Exception("Application already denied")
+    
+    def name(self) -> str:
+        return "denied"
+
+class InReviewState(ApplicationState):
+    def approve(self, application: "Application"):
+        application.state = ApprovedState()
+
+    def deny(self, application: "Application", feedback: str = ""):
+        application.state = DeniedState()
+        application.feedback = feedback
+
+    def name(self) -> str:
+        return "in review"
+
 class Application(Model):
     def __init__(self, applicant: str, pet: str, pet_form: Form, answers: list[str]):
         if len(answers) != len(pet_form):
@@ -269,7 +313,6 @@ class Application(Model):
         self.__applicant: str = applicant
         self.__pet: str = pet
         self.__answers: list[Answer] = []
-        self.__status: str = "in review"
         self.feedback: str = ""
 
         right_answers: int = 0
@@ -279,6 +322,9 @@ class Application(Model):
             right_answers += 1 if answer else 0
 
         self.__score: float = right_answers / len(pet_form)
+
+        # INITIALIZING APPLICATION IN "InReviewState"
+        self.state: ApplicationState = InReviewState()
 
         self.data[f"{pet}-{applicant}"] = self
 
@@ -297,13 +343,16 @@ class Application(Model):
 
     @property
     def status(self) -> str:
-        return self.__status
+        return self.state.name()
+    
+    # ACTIONS FOR STATE
+    def approve(self) -> None:
+        self.state.approve(self)
 
-    # MEDIATOR METHODS
-    def _set_status(self, new_status: str, feedback: str = "") -> None:
-        self.__status = new_status
-        if feedback:
-            self.feedback = feedback
+    def deny(self, feedback: str) -> None:
+        self.state.deny(self, feedback)
+        self.feedback = feedback
+
 
     def __str__(self) -> str:
         return f"@{self.__applicant}'s application to adopt {self.__pet}"
@@ -315,9 +364,9 @@ class Application(Model):
             application_info.append("")
 
         application_info.append(f"Score: {self.__score * 100:.2f}%")
-        application_info.append(f"Status: {self.__status.upper()}")
+        application_info.append(f"Status: {self.state.name().upper()}")
 
-        if self.__status == "denied" and self.feedback:
+        if self.state.name() == "denied" and self.feedback:
             application_info.append(f"Feedback: {self.feedback}")
 
         return application_info
