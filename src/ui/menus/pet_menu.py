@@ -8,7 +8,7 @@ from src.classes import Application
 from src.classes import User
 from src.classes import Pet
 from src.classes import Pet, PetProfileBuilder, Question
-from src.form_template import default_adoption_form 
+from src.form_template import default_adoption_form  # se você tiver um form padrão
 
 
 # UI helpers
@@ -188,7 +188,7 @@ class PetMenu(Menu):
 
         for app in apps:
             if app != approved_app:
-                self.deny_application(app)
+                self.deny_app(app)
 
         return 0
 
