@@ -6,6 +6,7 @@ def create_data():
     # create users
     a1 = Adopter("wgcv", "Wyvian Valenca")
     a2 = Adopter("ybss", "Ycaro Sales")
+    a3 = Adopter("gio", "Giovanna Oliveira")
 
     s1 = Shelter("csf", "Casa Sao Franscisco")
     s2 = Shelter("rh", "Reptile House")
@@ -63,7 +64,9 @@ def create_data():
     ap2 = Application(a2.username, p1.profile.name, p1.form,
                       ["Yes", "2 or more", "No", "4h or less"])
     ap3 = Application(a1.username, p2.profile.name, p2.form, ["Yes"])
-    ap4 = Application(a1.username, p3.profile.name, p2.form, ["Yes"])
+    
+    #FIXED WRONG INFO
+    ap4 = Application(a1.username, p3.profile.name, p3.form, ["Yes"])
 
     post1 = Post(s1, "educational",
                  "The Decompression Period: Giving Your New Pet Time to Adjust", """
