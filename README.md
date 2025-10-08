@@ -38,6 +38,16 @@ python main.py
 
 ---
 
+### Padrões Implementados
+- Factory Mode (creational): `UserFactory`
+- Protoype (creational): `Form(Prototype)`
+- Builder (creational): `PetProfileBuilder`
+- State (behavioral): `InReviewState`, `ApprovedState`, `DeniedState`
+- Mediator (behavioral): `AdoptionMediator`
+
+
+---
+
 ## Classes
 ### Event 
 Shelter organized events (fundraisers, pet fairs, etc.)
