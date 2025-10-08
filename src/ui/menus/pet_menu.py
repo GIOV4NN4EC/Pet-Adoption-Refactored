@@ -8,7 +8,7 @@ from src.classes import Application
 from src.classes import User
 from src.classes import Pet
 from src.classes import Pet, PetProfileBuilder, Question
-from src.form_template import default_adoption_form  # se você tiver um form padrão
+from src.form_template import default_adoption_form 
 
 
 # UI helpers
@@ -162,26 +162,22 @@ class PetMenu(Menu):
         pet.form.add_question(new_q.name, new_q.options, new_q.preferred_answer)
 
     # MEDIATOR FOR APPROVING/DENYING APPLICATIONS
+    
+    #codigo corrigido
     def deny_app(self, app: Application) -> int:
-        self.console.print(f"\nDenying [bold]{app.applicant}'s[/] application to adopt [bold]{app.pet}[/]...",
-                           f"\nPlease provide some feedback to {app.applicant}\n")
-        feedback: str = questionary.text("Why was this application denied?",
-                                         validate=NameValidator).ask()
-
-        self.mediator.deny_application(app, feedback)
+        if app.status == "in review":
+            self.console.print(f"\nDenying {app.applicant}'s application to adopt {app.pet}...")
+            feedback: str = questionary.text("Why was this application denied?").ask()
+            self.mediator.deny_application(app, feedback)
+        else:
+            # STATE DECIDES IF IT NEEDS FEEDBACK OR NOT
+            app.deny()
         return 0
+
 
     def approve_app(self, apps: list[Application], approved_app: Application) -> int:
         
         self.mediator.approve_application(approved_app)
-
-        self.console.print(
-            f"{approved_app.applicant}'s application to adopt {approved_app.pet} APPROVED! :party_popper:\n")
-
-        questionary.press_any_key_to_continue().ask()
-
-        self.console.print(
-            "\nThis means all other applications must be denied. Let's give the other applicants some feedback!/n")
 
         questionary.press_any_key_to_continue(
             "Press any key to start...").ask()
