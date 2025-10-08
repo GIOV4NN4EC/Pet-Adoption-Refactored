@@ -9,7 +9,7 @@ git clone https://github.com/GIOV4NN4EC/Pet-Adoption-Refactored.git
 cd Pet-Adoption-Refactored
 ```
 ### Virtual Envoirement
-For this project, you'll nedd to use a Virtual Envoirement, and here's how to create one and activate:
+For this project, you can use a Virtual Envoirement, and here's how to create one and activate:
 ```bash
 python -m venv venv
 source venv/bin/activate
@@ -35,7 +35,9 @@ python main.py
 - [OK] Adoption Application Processing: Handling and processing adoption applications;
 - [OK] Donation Processing: Facilitating donations to shelters and rescue organizations.
 - [OK] Search and Filter Options: Enabling users to search and filter pets based on various criteria;
-     
+
+---
+
 ## Classes
 ### Event 
 Shelter organized events (fundraisers, pet fairs, etc.)
@@ -51,6 +53,8 @@ Shelter organized events (fundraisers, pet fairs, etc.)
     - cancel: change status to 'cancelled'
     - end: chage status to 'done'
 
+---
+
 ### Donation
 A money donation to a shelter
 
@@ -65,25 +69,30 @@ A money donation to a shelter
 
 ---
 
-### Question 
+### Form (Prototype)
+Template for aplication (list of questions)  
+Prototype for adoption forms
 
 - has:
-    - name (str)
-    - option (list[str])
-    - preferred_answer (str): the best/right answer
-
+     - name (str)
+     - questions (list[Question])
 - can:
-    - formatted_list: formats the question and options in a list of strings
+     - `clone()`: create a deep copy of a form with Prototype pattern
+     - add or remove questions
+     - formatted_list: formats all questions
 
-### Form 
-Template for aplication (list of questions)
+---
+
+### Question (Prototype)
+Prototype for form questions
 
 - has:
-    - questions (list[question])
-
-- can:
-    - add_question
-    - formatted_list: formats all questions
+     - name (str)
+     - options (list[str])
+     - preferred_answer (str)
+ - can:
+     - `clone()`: duplicate a question while keeping its structure
+     - formatted_list: formats the question and options in a list of strings
 
 ### Answer
 
@@ -97,6 +106,7 @@ Template for aplication (list of questions)
 
 ### Application
 An Adopter's application to adopt a pet
+Uses State pattern
 
 - has:
     - applicant (Adopter)
@@ -104,11 +114,55 @@ An Adopter's application to adopt a pet
     - answers (list[Answer])
     - score (str)
         - indicates the compatibility between the applicant's answers and the expected answers
-    - status (str)
+    - state (ApplicationState)
+         - can be `InReviewState`, `ApprovedState`, or `DeniedState`
     - feedback (str)
 
 - can:
     - format: returns the questions, answers, score and status in a pretty formatted way
+    - approve: changes state from `InReviewState` -> `ApprovedState`
+    - deny: changes state from `InReviewState` -> `DeniedState` and records feedback
+    - remain stable: if already approved or denied, further attempts to approve/deny keep the current state and prevent overwriting feedback
+
+---
+
+### ApplicationState
+Abstract base class for an application's state
+
+- can:
+     - approve: defines how the application reacts when approved
+     - deny: defines how the application reacts when denied
+     - name: returns the state name ("approved", "denied", "in review")
+ 
+---
+
+### InReviewState
+State for an application currently under review
+
+- can:
+     - approve: changes state to `ApprovedState`
+     - deny: changes state to `DeniedState` and records feedback
+     - name: returns `"in review"`
+
+---
+
+### ApprovedState
+State for an application that was succesfully approved
+
+- can:
+     - approve: does nothing (already approved)
+     - deny: does nothing (cannot be denied once approved)
+     - name: returns `"approved"`
+
+---
+
+### DeniedState
+State for an application that was denied
+
+- can:
+     - approve: does nothing (cannot be approved once denied)
+     - deny: does nothing (already denied, prevents feedback overwrite)
+     - name: returns `"denied"`
 
 ---
 
@@ -123,6 +177,8 @@ Class for storing a structured address
 
 - can:
     - format: returns a pretty formatted address
+
+---
 
 ### Profile
 General informations for users and pets
@@ -152,7 +208,9 @@ General informations for users and pets
     - login: returns User object
     - format: returns brief User description
 
-### Adopter (User) [Under review]
+---
+
+### Adopter (User)
 Inherits User's attributes and methods
 
 - has:
@@ -162,6 +220,8 @@ Inherits User's attributes and methods
 - can:
     - donate: donate to a shelter
     - apply: fill out form to adopt pet
+      
+---
 
 ### Shelter (User) 
 Inherits User's attributes and methods.
@@ -235,4 +295,65 @@ A class for searching and filtering objects (pets, events, shelters, posts)
 
 - can:
     - search: find one specific object
-    - filter: filter all objects based on various criteria 
+    - filter: filter all objects based on various criteria
+ 
+---
+
+### UserFactory
+Factory Method for users
+
+- has:
+     - static method: `create_user`
+- can:
+     - create users of type `adopter` or `shelter` without exposing their constructors
+     - raise error if user type is unknown
+ 
+---
+
+### PetProfileBuilder
+Builder for `PetProfile`
+
+- has: 
+     - step-by-step configuration methods:
+          - `with_birth(date)`
+          - `with_address(Address)`
+          - `with_description(str)`
+          - `with_breed(str)`
+          - `with_color(str)`
+- can:
+     - construct a `PetProfile` object incrementally
+     - allow flexible creation of pet profiles with optional attributes
+
+---
+
+### AdoptionMediator
+Abstract Mediator for coordinating the adoption process
+
+- can:
+     - create_application: create a new application for a given pet and adopter
+     - approve_application: approve a given application
+     - deny_application: deny a given application with feedback
+ 
+---
+
+### ConcreteAdoptionMediator
+Concrete implementation of the mediator pattern, centralizing communication between `Pet`, `Adopter`, `Shelter`, and `Application`
+
+- has:
+     - pets (dict[str, Pet])
+     - adopters (dict[str, Adopter])
+     - shelters (dict[str, Shelter])
+     - applications (dict[str, Application])
+ - can:
+     - create_application:
+          - validates pet and adopter
+          - creates an `application`
+          - updates pet's application count
+     - approve_application:
+          - validates pet and adopter
+          - changes application's state to approved
+          - assigns adopter as pet's tutor
+          - updates pet status to adopted
+     - deny_application:
+          - chhanges application's state to denied
+          - stores feedback
