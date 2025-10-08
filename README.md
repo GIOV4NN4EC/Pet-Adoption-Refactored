@@ -38,12 +38,15 @@ python main.py
 
 ---
 
-### Padrões Implementados
-- Factory Mode (creational): `UserFactory`
-- Protoype (creational): `Form(Prototype)`
-- Builder (creational): `PetProfileBuilder`
-- State (behavioral): `InReviewState`, `ApprovedState`, `DeniedState`
-- Mediator (behavioral): `AdoptionMediator`
+## Implemented Patterns
+### Creational Patterns
+- Factory Mode: `UserFactory`
+- Protoype: `Form(Prototype)`
+- Builder: `PetProfileBuilder`
+### Behavioral Patterns
+- State: `InReviewState`, `ApprovedState`, `DeniedState`
+- Mediator: `AdoptionMediator`
+- Observer: `AdopterObserver`, `ShelterObserver`
 
 
 ---
@@ -367,3 +370,41 @@ Concrete implementation of the mediator pattern, centralizing communication betw
      - deny_application:
           - chhanges application's state to denied
           - stores feedback
+
+---
+
+### ApplicationNotifier
+Observer pattern implementation to update applicants and shelters about the adoption application proccess
+
+- has:
+    - observers: (dict[str, Observer])
+- can:
+    - attach new applicants to the observers list
+    - detach applicants of the observers list
+    - notify the applicants and shelters on the observers list
+
+
+---
+
+### AdoptionObserver
+Observer pattern implementation to update the applicants/adopters about the application/adoption proccess
+
+- has:
+    - adopter(str)
+    - pet(str)
+    - status(str)
+ 
+- can:
+    - notify the applicant about the application proccess updates
+ 
+---
+
+### ShelterObserver
+Observer pattern implementation to update the shelters about new adoption applications
+
+- has:
+    - shelter(str)
+    - pet(str)
+ 
+- can:
+    - notify the shelter about new adoption applications
