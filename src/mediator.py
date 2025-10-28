@@ -3,6 +3,7 @@ from src.ui.name_validator import NameValidator
 import questionary
 
 from src.observer import AdopterObserver, ShelterObserver, ApplicationNotifier
+from src.feedback_adapter import ConsoleFeedbackAdapter
 
 class AdoptionMediator:
     def create_application(self, applicant: str, pet: str, answers: list[str]) -> Application:
@@ -22,6 +23,8 @@ class ConcreteAdoptionMediator(AdoptionMediator, AdopterObserver):
         self.shelters = Shelter.data
         self.applications = Application.data
         self.notifier = ApplicationNotifier()
+        #ADAPTER PATTERN
+        self.feedback_sender = ConsoleFeedbackAdapter()
 
     def create_application(self, applicant: str, pet: str, answers: list[str]):
         pet_obj = self.pets.get(pet)
@@ -66,8 +69,12 @@ class ConcreteAdoptionMediator(AdoptionMediator, AdopterObserver):
 
     def deny_application(self, application: Application, feedback: str = "") -> None:
         application.deny(feedback)
-        pet_obj = self.pets.get(application.pet)
+
+        self.feedback_sender.send_feedback(application.applicant, application.pet, feedback)
+
+        #OLD CODE WITHOUT IMPLEMENTING ADAPTER PATTERN
+        """pet_obj = self.pets.get(application.pet)
         adopter = self.adopters.get(application.applicant)
 
         if pet_obj and adopter:
-            self.notifier.notify(f"Your application to adopt {pet_obj.profile.name} was denied. \n{feedback}")
+            self.notifier.notify(f"Your application to adopt {pet_obj.profile.name} was denied. \n{feedback}")"""
