@@ -12,8 +12,11 @@ import time
 
 from src.prototype import Prototype
 from src.ui.name_validator import NameValidator
+from src.observer import AdopterObserver, ShelterObserver
 
 console = Console()
+
+
 
 # STATES FOR APLICATION
 class ApplicationState(ABC):
@@ -44,7 +47,7 @@ class Model(ABC):
         pass
 
 
-#--------------------------------------------------------------------------------
+
 
 class User(Model, ABC):
     @classmethod
@@ -76,7 +79,7 @@ class User(Model, ABC):
     def __str__(self) -> str:
         return f"@{self.__username} - {self.profile.name}"
     
-#--------------------------------------------------------------------------------
+
 #FACTORY MODE FOR USER
 class UserFactory:
     @staticmethod
@@ -87,8 +90,6 @@ class UserFactory:
             return Shelter(username, name)
         else:
             raise ValueError(f"Unknown user type: {user_type}")
-            
-#--------------------------------------------------------------------------------
 
 class Profile:
     def __init__(self, name: str, birth: date | None = None,
@@ -214,7 +215,7 @@ class Profile:
         return f"{self.__name.title()}'s profile"
 
 
-#--------------------------------------------------------------------------------
+
 
 class Address:
     def __init__(self, street: str, district: str, number: str,
@@ -239,7 +240,7 @@ class Address:
         return (f"{self.__street}, {self.__number}, {self.__district} - "
                 + f"{self.__city}/{self.__state}")
 
-#--------------------------------------------------------------------------------
+
 
 class Adopter(User):
     def __init__(self, username: str, name: str):
@@ -250,7 +251,7 @@ class Adopter(User):
     def formatted_list(self) -> list[str]:
         return self.profile.formatted_list()
 
-#--------------------------------------------------------------------------------
+
 
 class Answer:
     def __init__(self, question: Question, user_option: str):
@@ -275,7 +276,7 @@ class Answer:
     def __bool__(self) -> bool:
         return self.__is_preferred
     
-#--------------------------------------------------------------------------------
+
 
 class ApprovedState(ApplicationState):
     def approve(self, application: "Application"):
@@ -364,6 +365,8 @@ class Application(Model):
 
     def deny(self, feedback: str = "") -> None:
         self.state.deny(self, feedback)
+        
+    
 
 
     def __str__(self) -> str:
@@ -394,7 +397,7 @@ class Application(Model):
     
 
 
-#--------------------------------------------------------------------------------
+
 
 class Donation(Model):
     @classmethod
@@ -453,7 +456,7 @@ class Donation(Model):
             return self.ammount < other.ammount
         return NotImplemented
     
-#--------------------------------------------------------------------------------
+
 
 class Event(Model):
     @classmethod
@@ -496,9 +499,16 @@ class Event(Model):
             f"   · [bold]Status:[/] {self.__status.upper()}"
         ]
     
-#--------------------------------------------------------------------------------
 
-class Form(Model, Prototype):
+# COMPOSITE PATTERN
+class FormComponent(ABC):
+    @abstractmethod
+    def formatted_list(self) -> list[str]:
+        pass
+
+
+# COMPOSITE PATTERN APLICATION IN FORM
+class Form(Model, Prototype, FormComponent):
     def __init__(self, name: str, questions: list[Question] = []):
         self.name = name
         self.__questions: list[Question] = questions
@@ -537,8 +547,8 @@ class Form(Model, Prototype):
             form.append("")
 
         return form
-
-#--------------------------------------------------------------------------------
+    
+    
 class PetProfile(Profile):
     def __init__(self, name: str,
                  birth: date | None = None,
@@ -727,7 +737,7 @@ class PetProfileBuilder:
             color=self._color
         )
 
-#--------------------------------------------------------------------------------
+
 class Post(Model):
     def __init__(self, author: User, post_type: str,
                  title: str, content: str):
@@ -828,9 +838,9 @@ class Post(Model):
 
         return post_info
 
-#--------------------------------------------------------------------------------
 
-class Question(Prototype):
+# COMPOSITE PATTERN APLICATION IN QUESTION
+class Question(Prototype, FormComponent):
     def __init__(self, name: str, options: list[str], preferred_answer: str):
         if len(name) < 5:
             raise ValueError("question is too short")
@@ -871,7 +881,8 @@ class Question(Prototype):
 
     def __str__(self) -> str:
         return f"{self.name} [{len(self)} options]"
-#--------------------------------------------------------------------------------
+
+
 
 class Shelter(User):
     def __init__(self, username: str, name: str):
@@ -898,5 +909,8 @@ class Shelter(User):
         shelter_info.append(
             f"    > [bold]Allowed pets[/]: {self.allowed_pet_types}")
         return shelter_info
-        
+
+
+
+
 
