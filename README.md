@@ -47,6 +47,10 @@ python main.py
 - State: `InReviewState`, `ApprovedState`, `DeniedState`
 - Mediator: `AdoptionMediator`
 - Observer: `AdopterObserver`, `ShelterObserver`
+### Structural Patterns
+- Facade: `AdoptionFacade`
+- Adapter: `FeedbackSender`
+- Composite: `FormComponent`, `Form(FormComponent)`, `Question(FormComponent)`
 
 
 ---
@@ -82,7 +86,7 @@ A money donation to a shelter
 
 ---
 
-### Form (Prototype)
+### Form (Prototype, FormComponent)
 Template for aplication (list of questions)  
 Prototype for adoption forms
 
@@ -96,7 +100,7 @@ Prototype for adoption forms
 
 ---
 
-### Question (Prototype)
+### Question (Prototype, FormComponent)
 Prototype for form questions
 
 - has:
@@ -408,3 +412,35 @@ Observer pattern implementation to update the shelters about new adoption applic
  
 - can:
     - notify the shelter about new adoption applications
+ 
+---
+
+### FeedbackSender
+Abstract interface for different feedback-sending mechanisms.
+
+- has:
+    - abstractmethod: `send_feedback(adopter, pet, feedback)`
+- can:
+    - serve as contract for concrete adapter implementations (like `FileFeedbackAdapter`) that handle feedback delivery in different ways.
+
+---
+
+### FileFeedbackAdapter
+Adapts the feedback sending interface, allowing feedback messages to be stored locally in a text file.
+
+- has:
+    - no fixed attributes
+- can:
+    - `send_feedback(adopter, pet, feedback)`: records feedback in the file `feedback_log.txt`, appending a line with the adopter's name, pet's name, and the feedback message.
+ 
+---
+
+### AdoptionAFacade
+A Facade class that provides a simplified interface for managing the pet adoption process.
+
+- has:
+    - `ConcreteAdoptionMediator`: handles communication between adopters, pets, and shelters.
+    - `FeedbackSender`: adapter used to send feedback messages.
+- can:
+    - `proccess_application()`: Act as a single entry point for the adoption system. 
+ 
