@@ -1,9 +1,10 @@
 from src.classes import Pet, Adopter, Shelter, Application
 from src.ui.name_validator import NameValidator
 import questionary
+import time
 
 from src.observer import AdopterObserver, ShelterObserver, ApplicationNotifier
-from src.feedback_adapter import ConsoleFeedbackAdapter
+from src.feedback_adapter import ConsoleFeedbackAdapter, FileFeedbackAdapter
 
 class AdoptionMediator:
     def create_application(self, applicant: str, pet: str, answers: list[str]) -> Application:
@@ -23,8 +24,10 @@ class ConcreteAdoptionMediator(AdoptionMediator, AdopterObserver):
         self.shelters = Shelter.data
         self.applications = Application.data
         self.notifier = ApplicationNotifier()
+
         #ADAPTER PATTERN
-        self.feedback_sender = ConsoleFeedbackAdapter()
+        # Registra o feedback em um arquivo .txt
+        self.feedback_sender = FileFeedbackAdapter()
 
     def create_application(self, applicant: str, pet: str, answers: list[str]):
         pet_obj = self.pets.get(pet)
@@ -71,10 +74,6 @@ class ConcreteAdoptionMediator(AdoptionMediator, AdopterObserver):
         application.deny(feedback)
 
         self.feedback_sender.send_feedback(application.applicant, application.pet, feedback)
-
-        #OLD CODE WITHOUT IMPLEMENTING ADAPTER PATTERN
-        """pet_obj = self.pets.get(application.pet)
-        adopter = self.adopters.get(application.applicant)
-
-        if pet_obj and adopter:
-            self.notifier.notify(f"Your application to adopt {pet_obj.profile.name} was denied. \n{feedback}")"""
+        print("Processing Feedback. Please wait a few seconds...")
+        time.sleep(5)
+        
