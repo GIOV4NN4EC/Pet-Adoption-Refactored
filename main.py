@@ -84,6 +84,10 @@ def login(user_type: str) -> Adopter | Shelter | None:
 
 
 def main():
+    # limpa o arquivo feedback_log.txt ao iniciar o sistema
+    with open("feedback_log.txt", "w") as f:
+        f.truncate(0)
+        
     user = welcome()
     if not user:
         return
