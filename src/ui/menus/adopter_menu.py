@@ -7,6 +7,7 @@ from rich.panel import Panel
 from src.classes import Adopter, Application, Donation, Shelter, Pet, Form
 from src.query.query import Query
 
+from src.exceptions import InvalidDonationAmountError, ApplicationAlreadyExistsError
 
 from src.ui.lister import Lister
 from src.ui.name_validator import NameValidator
@@ -55,12 +56,20 @@ class AdopterMenu(Menu):
                                        choices=shelters).ask()
         name = name.split(" - ")[0][1:]
 
-        ammount: str = questionary.text("How much to you want to donate?",
-                                        validate=lambda text: True if float(text) > 0 else "Ammount must be positive").ask()
+        try:
+            ammount: str = questionary.text(
+                "How much to you want to donate?",
+                validate=lambda text: text.replace('.', '', 1).isdigit() and float(text) > 0 or "Amount must be a positive number"
+            ).ask()
 
-        d = Donation(self.user.username, name, float(ammount), date.today())
+            # InvalidDonationAmountError
+            if float(ammount) <= 0:
+                raise InvalidDonationAmountError("Donation amount must be greater than zero.")
 
-        self.console.print(f"\nDonation registered!\n >{d}")
+            d = Donation(self.user.username, name, float(ammount), date.today())
+            self.console.print(f"\nDonation registered!\n >{d}")
+        except InvalidDonationAmountError as e:
+            self.console.print(f"[bold red]Error:[/bold red] {e}")
 
         questionary.press_any_key_to_continue().ask()
 
@@ -100,11 +109,11 @@ class AdopterMenu(Menu):
             questionary.press_any_key_to_continue().ask()
             return
 
+        # ApplicationAlreadyExistsError
         if Application.__contains__(f"{pet.profile.name}-{self.user.username}"):
-            self.console.print(
-                f"{self.user.username} already applied to adopt {pet.profile.name}")
-            questionary.press_any_key_to_continue().ask()
-            return
+            raise ApplicationAlreadyExistsError(
+                f"{self.user.username} already applied to adopt {pet.profile.name}"
+                )
 
         questions_dict: list[dict[str, str | list]] = self.make_form(pet.form)
 
