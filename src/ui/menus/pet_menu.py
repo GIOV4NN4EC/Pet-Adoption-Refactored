@@ -8,7 +8,7 @@ from src.classes import Application
 from src.classes import User
 from src.classes import Pet
 from src.classes import Pet, PetProfileBuilder, Question
-from src.form_template import default_adoption_form 
+from src.form_template import default_adoption_form  # se você tiver um form padrão
 
 
 # UI helpers
@@ -17,11 +17,13 @@ from src.ui.name_validator import NameValidator
 from src.ui.lister import Lister
 from src.ui.clean import clear_screen
 from src.ui.header import header
+from src.exceptions import DuplicatePetNameError, PetNotFoundError
 
 # menus
 from src.ui.menus.menu import Menu
 
 from src.mediator import ConcreteAdoptionMediator
+from src.adoption_facade import AdoptionFacade
 
 
 class PetMenu(Menu):
@@ -61,6 +63,11 @@ class PetMenu(Menu):
 
         }
 
+        self.facade = AdoptionFacade()
+    
+
+
+
     def show_pets(self):
         pets = Pet.by_shelter(self.user.username)
         Lister(f"{self.user.name}'s pets",
@@ -72,11 +79,11 @@ class PetMenu(Menu):
         name: str = questionary.text("Type the pet's name:",
                                      validate=NameValidator,
                                      qmark=">>").ask()
+        # PET NOT FOUND ERROR
+        if not Pet.__contains__(name):
+            raise PetNotFoundError(f"Pet named '{name}' not found in the system")
 
-        if Pet.__contains__(name):
-            return Pet.data[name]
-
-        return None
+        return Pet.data[name]
 
     def update_pet_profile(self):
         pet: Pet | None = self.get_pet_name()
@@ -91,6 +98,9 @@ class PetMenu(Menu):
         name: str = questionary.text("Type the pet's name:",
                                     validate=NameValidator,
                                     qmark=">>").ask()
+        # DUPLICATE PET NAME ERROR
+        if Pet.__contains__(name):
+            raise DuplicatePetNameError(f"A pet named '{name}' already exists in this shelter.")
 
         pet_type: str = questionary.text("Type the pet's type (species):",
                                         validate=NameValidator,
@@ -161,32 +171,31 @@ class PetMenu(Menu):
         # ADD QUESTION TO THE FORM
         pet.form.add_question(new_q.name, new_q.options, new_q.preferred_answer)
 
-    # MEDIATOR FOR APPROVING/DENYING APPLICATIONS
-    
-    #codigo corrigido
+    # FACADE/MEDIATOR FOR APPROVING/DENYING APPLICATIONS
+
     def deny_app(self, app: Application) -> int:
-        if app.status == "in review":
-            self.console.print(f"\nDenying {app.applicant}'s application to adopt {app.pet}...")
-            feedback: str = questionary.text("Why was this application denied?").ask()
-            self.mediator.deny_application(app, feedback)
-        else:
-            # STATE DECIDES IF IT NEEDS FEEDBACK OR NOT
-            app.deny()
+        self.console.print(f"\nDenying [bold]{app.applicant}'s[/] application to adopt [bold]{app.pet}[/]...")
+
+        feedback: str = questionary.text(
+            "Why was this application denied?",
+            validate=NameValidator
+        ).ask()
+
+        self.facade.mediator.deny_application(app, feedback)
+        
         return 0
 
 
     def approve_app(self, apps: list[Application], approved_app: Application) -> int:
         
-        self.mediator.approve_application(approved_app)
-
-        questionary.press_any_key_to_continue(
-            "Press any key to start...").ask()
+        self.facade.process_application(approved_app)
 
         for app in apps:
-            if app != approved_app:
+            if app != approved_app and app.state.name() != "denied":
                 self.deny_app(app)
 
         return 0
+
 
     def next(self) -> int:
         return 1
@@ -248,3 +257,5 @@ class PetMenu(Menu):
 
         questionary.press_any_key_to_continue(
             "There are no more applications. Press any key to go back").ask()
+
+    
