@@ -12,10 +12,3 @@ class NameValidator(Validator):
                 message=str(EmptyFieldError("Please enter a value")),
                 cursor_position=len(document.text),
             )
-
-        # InvalidNameError
-        if not all(char.isalpha() or char.isspace() for char in text):
-            raise ValidationError(
-                message=str(InvalidNameError("Name can only contain letters")),
-                cursor_position=len(document.text),
-            )
