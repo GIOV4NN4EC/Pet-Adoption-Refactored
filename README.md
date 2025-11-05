@@ -442,5 +442,26 @@ A Facade class that provides a simplified interface for managing the pet adoptio
     - `ConcreteAdoptionMediator`: handles communication between adopters, pets, and shelters.
     - `FeedbackSender`: adapter used to send feedback messages.
 - can:
-    - `proccess_application()`: Act as a single entry point for the adoption system. 
+    - `proccess_application()`: Act as a single entry point for the adoption system.
+
+---
+
+## Exception Handling  
+To improve reliability and user experience, the system implements specific custom exceptions that handle both data validation errors and business logic violations, providing clear messages and preventing system crashes.
+
+### Data Entry Exceptions  
+Handle invalid or incomplete user input
+- `InvalidDateError`: raised when a date is out of range or invalid
+- `InvalidAddressError`: raised when the address is incomplete or invalid
+- `InvalidNameError`: raised when the name contains invalid characters
+- `EmptyFieldError`: raised when a required field is left empty
+- `InvalidPostalCodeError`: raised when postal code is not numeric
+
+### Logic Exceptions  
+Enforce system rules and data integrity
+- `DuplicatePetNameError`: prevents shelters from registering pets with
+- `PetNotFoundError`: raised when a pet does not exist
+- `ApplicationAlreadyExistsError`: prevents adopters from submitting the same application twice
+- `InvalidDonationAmountError`: raised when donation value ≤ 0
+
  
