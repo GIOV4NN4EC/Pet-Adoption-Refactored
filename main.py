@@ -97,7 +97,126 @@ def main():
         adopter_menu.show_menu()
 
     elif isinstance(user, Shelter):
-        shelter_menu: ShelterMenu = ShelterMenu(user, console)
+        shelter_menu: Shelimport questionary
+from src.classes import UserFactory, Adopter, Shelter, User
+from src.exceptions import EmptyFieldError
+from rich.console import Console
+
+import initial_info
+from src.ui.clean import clear_screen
+from src.ui.header import header
+from src.ui.menus.adopter_menu import AdopterMenu
+from src.ui.menus.shelter_menu import ShelterMenu
+
+console = Console()
+
+
+def welcome() -> Adopter | Shelter | None:
+    while True:
+        clear_screen()
+
+        console.print(header("Pet Adoption App"))
+        console.print()
+
+        user_type: str = questionary.select("Choose your role!",
+                                            choices=["Quit", "Adopter", "Shelter"]).ask()
+
+        if not user_type or user_type == "Quit":
+            console.print("\nGoodbye!")
+            return None
+
+        console.print()
+
+        user_access: str = questionary.select("How do you want to access PetApp?",
+                                              choices=["Login", "Sign Up"]).ask()
+
+        try:
+            if user_access == "Login":
+                user = login(user_type)
+            elif user_access == "Sign Up":
+                user = sign_up(user_type)
+            else:
+                continue
+
+            if user:
+                return user
+        except EmptyFieldError as e:
+            console.print(f"[red]{e}[/]")
+            questionary.press_any_key_to_continue("Press any key to try again...").ask()
+
+
+# FACTORY MODE FOR USER
+def sign_up(user_type: str) -> User:
+    while True:
+        console.print()
+        username: str = questionary.text("Choose a username: ").ask()
+
+        # EMPTY USERNAME CHECK
+        if not username.strip():
+            raise EmptyFieldError("Username cannot be empty.")
+
+        if user_type == "Adopter" and Adopter.username_available(username):
+            first_name: str = questionary.text("What's your first name?").ask()
+            if not first_name.strip():
+                raise EmptyFieldError("First name cannot be empty.")
+
+            last_name: str = questionary.text("What's your last name?").ask()
+            if not last_name.strip():
+                raise EmptyFieldError("Last name cannot be empty.")
+
+            name: str = first_name.title() + " " + last_name.title()
+            return UserFactory.create_user("Adopter", username, name)
+
+        elif user_type == "Shelter" and Shelter.username_available(username):
+            name: str = questionary.text("What's the shelter's name?").ask()
+            if not name.strip():
+                raise EmptyFieldError("Shelter name cannot be empty.")
+
+            return UserFactory.create_user("Shelter", username, name)
+
+        console.print("Username taken.\n", style="red")
+
+
+def login(user_type: str) -> Adopter | Shelter | None:
+    console.print()
+    username: str = questionary.text("Type your username: ").ask()
+
+    # EMPTY FIELD CHECK
+    if not username.strip():
+        raise EmptyFieldError("Username cannot be empty.")
+
+    if user_type == "Adopter":
+        if not Adopter.username_available(username):
+            return Adopter.login(username)
+    elif user_type == "Shelter":
+        if not Shelter.username_available(username):
+            return Shelter.login(username)
+
+    console.print("User not found.\n", style="red")
+    questionary.press_any_key_to_continue().ask()
+    return None
+
+
+def main():
+    with open("feedback_log.txt", "w") as f:
+        f.truncate(0)
+
+    user = welcome()
+    if not user:
+        return
+
+    if isinstance(user, Adopter):
+        AdopterMenu(user, console).show_menu()
+    elif isinstance(user, Shelter):
+        ShelterMenu(user, console).show_menu()
+
+    main()
+
+
+if __name__ == "__main__":
+    initial_info.create_data()
+    main()
+terMenu = ShelterMenu(user, console)
         shelter_menu.show_menu()
 
     main()
