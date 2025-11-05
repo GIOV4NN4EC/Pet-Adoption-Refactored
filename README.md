@@ -40,17 +40,40 @@ python main.py
 
 ## Implemented Patterns
 ### Creational Patterns
-- Factory Mode: `UserFactory`
-- Protoype: `Form(Prototype)`
-- Builder: `PetProfileBuilder`
+#### Factory Mode: `UserFactory`
+- Centralizes the creation of different user types (Adopter, Shelter) while keeping instantiation logic isolated from the client code.
+#### Protoype: `Form(Prototype)`
+- Allows cloning of default adoption forms and questions without creating new instances from scratch.
+- Simplifies form assignment for new pets by duplicating predefined templates.
+#### Builder: `PetProfileBuilder`
+- Provides a flexible and step-by-step way to construct complex `PetProfile` objects
+
+
 ### Behavioral Patterns
-- State: `InReviewState`, `ApprovedState`, `DeniedState`
-- Mediator: `AdoptionMediator`
-- Observer: `AdopterObserver`, `ShelterObserver`
+#### State: `InReviewState`, `ApprovedState`, `DeniedState`
+- Manages the state transitions of adoption applications.
+- Each state defines its own behavior for actions like `approve()` and `deny()`, ensuring valid transitions and preventing invalid operations.
+#### Mediator: `AdoptionMediator`
+- Centralizes communication between components such as `Adopter`, `Shelter`, and `Pet`.
+- Decouples these objects, simplifying coordination of the adoption process.
+#### Observer: `AdopterObserver`, `ShelterObserver`
+- Ensures real-time updates when important events occur, such as status changes in applications.
+- Allows adopters and shelters to automatically receive feedback or notifications without tight coupling.
+
+
 ### Structural Patterns
-- Facade: `AdoptionFacade`
-- Adapter: `FeedbackSender`
-- Composite: `FormComponent`, `Form(FormComponent)`, `Question(FormComponent)`
+#### Facade
+- Encapsulates all the adoption process in a simple and unified interface.
+- `AdoptionFacade`
+#### Adapter
+- Used to standardize the sending of feedback between shelters and adopters.
+- `FeedbackSender`: Defines the standard interface `send_feedback()`
+- `FileFeedbackAdapter`: Adapt the interface to record feedback in a log file.
+#### Composite
+- Implemented to represent the forms in a hierarchical and flexible way. 
+- `FormComponent`: Abstract class with generic methods
+-  `Form(FormComponent)`: composite component, which groups several questions and allows them to be treated as a single object.
+-   `Question(FormComponent)`: Leaf component, representing the questions individually
 
 
 ---
@@ -447,21 +470,43 @@ A Facade class that provides a simplified interface for managing the pet adoptio
 ---
 
 ## Exception Handling  
-To improve reliability and user experience, the system implements specific custom exceptions that handle both data validation errors and business logic violations, providing clear messages and preventing system crashes.
+To improve reliability and user experience, the system implements specific custom exceptions that handle both data validation errors and business logic violations, providing clear messages and preventing system crashes. Most of them are simple customed raising exceptions.
 
 ### Data Entry Exceptions  
-Handle invalid or incomplete user input
-- `InvalidDateError`: raised when a date is out of range or invalid
-- `InvalidAddressError`: raised when the address is incomplete or invalid
-- `InvalidNameError`: raised when the name contains invalid characters
-- `EmptyFieldError`: raised when a required field is left empty
-- `InvalidPostalCodeError`: raised when postal code is not numeric
+Handle invalid or incomplete user input. When invalid input is detected, they raise a specific exception with a clear error message.
+#### `InvalidDateError`
+- `create_date()`
+- Raised when a date is out of range or invalid
+#### `InvalidAddressError`
+- `create_address()` and `ProfileUpdater.__update_address()`
+- Raised when the address is incomplete or invalid
+#### `InvalidNameError`
+- `NameValidator`
+- Raised when the name contains invalid characters
+#### `EmptyFieldError`
+- `login()` and `sign_up()`
+- Raised when a required field is left empty
+#### `InvalidPostalCodeError`
+- `ProfileUpdater.__update_address()`
+- Raised when postal code is not numeric
+#### MissingAddressFieldError
+- `create_address()`
+- Raised when one or more address components (street, number, city, etc.) are not provided.
+
 
 ### Logic Exceptions  
 Enforce system rules and data integrity
-- `DuplicatePetNameError`: prevents shelters from registering pets with
-- `PetNotFoundError`: raised when a pet does not exist
-- `ApplicationAlreadyExistsError`: prevents adopters from submitting the same application twice
-- `InvalidDonationAmountError`: raised when donation value ≤ 0
+#### `DuplicatePetNameError`
+- `PetMenu.create_pet()`
+- Raised when a shelter tires to register a pet with a name that already existes in their collection.
+#### `PetNotFoundError`
+- `PetMenu.get_pet_name()`
+- Raised when a pet does not exist in the system.
+#### `ApplicationAlreadyExistsError`
+- `AdopterMenu.apply_adopt()`
+- Raised when an adopter has already applied to adopt the same pet.
+#### `InvalidDonationAmountError`
+- `AdopterMenu.donate()`
+- Raised when the donation amount entered is zero, negative, or not numeric.
 
  
