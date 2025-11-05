@@ -13,6 +13,7 @@ import time
 from src.prototype import Prototype
 from src.ui.name_validator import NameValidator
 from src.observer import AdopterObserver, ShelterObserver
+from src.exceptions import InvalidAddressError, InvalidPostalCodeError
 
 console = Console()
 
@@ -220,6 +221,14 @@ class Profile:
 class Address:
     def __init__(self, street: str, district: str, number: str,
                  postal_code: int, city: str, state: str):
+
+        # VALIDATORS
+        if not all([street, district, number, city, state]):
+            raise InvalidAddressError("All address fields must be filled.")
+
+        if not isinstance(postal_code, int) or postal_code <= 0:
+            raise InvalidPostalCodeError("Postal code must be a positive number.")
+                 
         self.__street: str = street
         self.__district: str = district
         self.__number: str = number
@@ -445,7 +454,6 @@ class Donation(Model):
     def formatted_list(self) -> list[str]:
         return [self.__str__()]
 
-    # overloading comparison operators
     def __gt__(self, other):
         if isinstance(other, Donation):
             return self.ammount > other.ammount
